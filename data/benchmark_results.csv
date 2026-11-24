@@ -1,0 +1,5 @@
+passenger_count,runtime_seconds,candidate_groups,selected_pooled_groups,pooled_passenger_count,distance_saved_km,fare_saved_won,greedy_solved_groups,genetic_solved_groups,ortools_solved_groups,exact_solved_groups
+5,2.283,15,1,2,2.026,3600,1,1,1,1
+10,10.053,158,4,9,15.285,19700,3,4,4,4
+15,16.052,252,5,14,29.378,36900,3,5,5,5
+20,19.811,269,6,17,32.849,43000,5,6,6,6

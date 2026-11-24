@@ -1,0 +1,1 @@
+"""Local simulation history storage."""

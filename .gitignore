@@ -221,3 +221,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local environments, OSM responses and downloaded road networks
+.venv/
+cache/
+data/road_network/*.graphml
+data/road_network/*.geojson
+data/road_network/http/
+data/*.sqlite3
+data/*.db
+*.log
