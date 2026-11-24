@@ -1,2 +1,5 @@
-# taxi-pooling-optimizer
+## taxi-pooling-optimizer
+
+#22101162 컴퓨터공학과 김중겸
+
 노원구 택시 합승 경로와 비용 분담을 최적화하는 파이썬 프로젝트 🚕
