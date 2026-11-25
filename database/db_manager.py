@@ -57,7 +57,6 @@ class SimulationStore:
                 "pickup": {"label": p.pickup.label, "lat": p.pickup.latitude, "lon": p.pickup.longitude},
                 "dropoff": {"label": p.dropoff.label, "lat": p.dropoff.latitude, "lon": p.dropoff.longitude},
                 "max_detour_min": p.max_detour_min,
-                "requested_at": p.requested_at,
                 "share_allowed": p.share_allowed,
             }
             for p in result.passengers

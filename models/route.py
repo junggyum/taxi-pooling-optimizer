@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass, field
 
-from models.passenger import Location
 
 
 @dataclass(frozen=True)
@@ -10,7 +9,6 @@ class Leg:
     distance_km: float
     duration_min: float
     geometry: tuple[tuple[float, float], ...] = ()
-    node_ids: tuple[int, ...] = ()
 
     def __post_init__(self) -> None:
         if self.distance_km < 0 or self.duration_min < 0:
@@ -47,10 +45,3 @@ class RoutePlan:
                 if not points or points[-1] != point:
                     points.append(point)
         return tuple(points)
-
-
-@dataclass(frozen=True)
-class RouteStop:
-    event: VisitEvent
-    location: Location
-    arrival_min: float

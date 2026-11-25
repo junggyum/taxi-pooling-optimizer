@@ -143,7 +143,6 @@ class RoadRouter:
         label: str,
         latitude: float,
         longitude: float,
-        address: str | None = None,
         require_nowon: bool = True,
     ) -> Location:
         if require_nowon and not self.is_in_nowon(latitude, longitude):
@@ -155,7 +154,7 @@ class RoadRouter:
             raise ValueError("입력 위치에서 가까운 차량 통행 도로를 찾지 못했습니다.")
         if not require_nowon and not self.allow_external_destinations and not self.is_in_nowon(latitude, longitude):
             raise ValueError("노원구 외 목적지는 외부 목적지 허용 설정을 켜야 합니다.")
-        return Location(location_id, label, latitude, longitude, int(node_id), address)
+        return Location(location_id, label, latitude, longitude, int(node_id))
 
     def geocode_address(
         self,
@@ -176,7 +175,6 @@ class RoadRouter:
             label,
             float(latitude),
             float(longitude),
-            address=address,
             require_nowon=require_nowon,
         )
 
@@ -230,7 +228,6 @@ class RoadRouter:
             distance_km=distance_m / 1000,
             duration_min=duration_seconds / 60,
             geometry=tuple(geometry),
-            node_ids=tuple(int(node) for node in path),
         )
 
     def route_between(self, origin: Location, destination: Location) -> Leg:
@@ -240,7 +237,11 @@ class RoadRouter:
         if key in self._leg_cache:
             return self._leg_cache[key]
         if key[0] == key[1]:
-            leg = Leg(0.0, 0.0, ((origin.latitude, origin.longitude), (destination.latitude, destination.longitude)), key)
+            leg = Leg(
+                0.0,
+                0.0,
+                ((origin.latitude, origin.longitude), (destination.latitude, destination.longitude)),
+            )
             self._leg_cache[key] = leg
             return leg
         try:

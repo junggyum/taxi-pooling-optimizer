@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-import math
-
 import pandas as pd
 import streamlit as st
 from streamlit_folium import st_folium
@@ -17,7 +14,6 @@ from config import (
 )
 from database.db_manager import SimulationStore
 from models.passenger import Passenger
-from services.demand_prediction import DEMO_ZONES, predict_demo_demand
 from services.demo_data import generate_demo_passengers
 from services.fare_service import FareSettings
 from services.optimization_service import OptimizationResult, optimize_passengers
@@ -38,18 +34,13 @@ def get_router(allow_external_destinations: bool) -> RoadRouter:
     return RoadRouter.load_or_download(allow_external_destinations=allow_external_destinations)
 
 
-@st.cache_data(show_spinner=False)
-def cached_demand_forecast(hour: int, weekday: int, zone_code: int):
-    return predict_demo_demand(hour, weekday, zone_code)
-
-
 def _sample_data() -> pd.DataFrame:
     sample_path = DATA_DIR / "sample_passengers.csv"
     if sample_path.exists():
         return pd.read_csv(sample_path)
     return pd.DataFrame(columns=[
         "passenger_id", "pickup_lat", "pickup_lon", "dropoff_lat", "dropoff_lon",
-        "max_detour_min", "requested_at", "share_allowed",
+        "max_detour_min", "share_allowed",
     ])
 
 
@@ -90,7 +81,6 @@ def passengers_from_table(
             raise ValueError(f"{passenger_id}: 허용 우회 시간은 0~30분 정수로 입력해 주세요.") from exc
         if not 0 <= detour <= 30:
             raise ValueError(f"{passenger_id}: 허용 우회 시간은 0~30분이어야 합니다.")
-        requested_at = _clean_text(row.get("requested_at")) or None
         share_allowed = _bool_value(row.get("share_allowed", True))
 
         if input_mode == "주소 검색":
@@ -135,7 +125,6 @@ def passengers_from_table(
             pickup=pickup,
             dropoff=dropoff,
             max_detour_min=detour,
-            requested_at=requested_at,
             share_allowed=share_allowed,
         ))
     return passengers
@@ -175,7 +164,6 @@ def _render_input_form(input_mode: str, uploaded: pd.DataFrame | None) -> tuple[
                 "pickup_address": [""] * 5,
                 "dropoff_address": [""] * 5,
                 "max_detour_min": [DEFAULT_DETOUR_MINUTES] * 5,
-                "requested_at": ["09:00"] * 5,
                 "share_allowed": [True] * 5,
             })
             st.caption("주소 검색어는 좌표 변환을 위해 OpenStreetMap 지오코더로 전송됩니다. 이름·전화번호 등은 입력하지 마세요.")
@@ -325,7 +313,7 @@ if submitted:
         st.error(f"계산 중 문제가 발생했습니다: {type(exc).__name__}: {exc}")
 
 
-results_tab, demand_tab, history_tab = st.tabs(["합승 결과", "수요 예측 시연", "이전 실행"])
+results_tab, history_tab = st.tabs(["합승 결과", "이전 실행"])
 with results_tab:
     current_result = st.session_state.get("last_result")
     if current_result is None:
@@ -335,19 +323,6 @@ with results_tab:
         _render_results(current_result, result_router)
         if st.session_state.get("last_simulation_id"):
             st.caption(f"이번 결과는 이 컴퓨터의 실행 내역 #{st.session_state['last_simulation_id']}에 저장했습니다.")
-
-with demand_tab:
-    st.subheader("가상 자료로 보는 시간대별 수요")
-    st.warning("실제 호출 기록이 아닌 규칙과 난수로 만든 가상 자료로 학습한 시연 결과입니다. 실제 택시 수요 예측 정확도를 뜻하지 않습니다.")
-    demand_columns = st.columns(3)
-    selected_zone_name = demand_columns[0].selectbox("지역", list(DEMO_ZONES.values()))
-    selected_zone = next(code for code, name in DEMO_ZONES.items() if name == selected_zone_name)
-    selected_hour = demand_columns[1].slider("시간", min_value=0, max_value=23, value=18)
-    selected_weekday = demand_columns[2].selectbox("요일", list(range(7)), format_func=lambda day: ["월", "화", "수", "목", "금", "토", "일"][day])
-    forecast = cached_demand_forecast(selected_hour, selected_weekday, selected_zone)
-    st.metric("예상 호출 수 (가상 모델)", f"{forecast.expected_requests:.1f}건")
-    st.caption(forecast.label)
-    st.caption("수요 예측 모듈은 경로 최적화와 분리되어 있어 핵심 기능 실행에 필요하지 않습니다.")
 
 with history_tab:
     st.subheader("이 컴퓨터의 최근 실행 내역")

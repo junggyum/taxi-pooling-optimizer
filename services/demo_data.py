@@ -54,7 +54,6 @@ def generate_demo_passengers(
                 pickup=pickup,
                 dropoff=dropoff,
                 max_detour_min=rng.choice([0, 5, 10, 10, 15, 20]),
-                requested_at=f"{rng.randrange(7, 23):02d}:{rng.choice(['00', '15', '30', '45'])}",
                 share_allowed=True,
             )
         )

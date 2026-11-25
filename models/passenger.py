@@ -10,7 +10,6 @@ class Location:
     latitude: float
     longitude: float
     node_id: int | None = None
-    address: str | None = None
 
     def __post_init__(self) -> None:
         if not self.location_id:
@@ -27,7 +26,6 @@ class Passenger:
     pickup: Location
     dropoff: Location
     max_detour_min: int = 10
-    requested_at: str | None = None
     share_allowed: bool = True
 
     def __post_init__(self) -> None:

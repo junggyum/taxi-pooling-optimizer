@@ -13,7 +13,6 @@
 - 가까운 출발지, 경로 방향 유사도, 거리·우회 효율의 세 매칭 기준을 제공합니다.
 - Exact search, Greedy, Genetic Algorithm, OR-Tools 경로를 비교합니다.
 - 승객별 개별/합승 예상 시간과 가상 부담 요금, 경로·승하차 순서를 지도와 표로 보여줍니다.
-- 가상 수요 자료로 Random Forest 예측 시연을 합니다. 이 기능은 핵심 최적화와 별도 모듈입니다.
 - 실행 요약은 프로젝트 폴더의 SQLite 파일에 로컬 저장합니다.
 
 ## 사용 기술 및 버전
@@ -23,8 +22,8 @@
 - Python, Pandas, NumPy
 - OSMnx, NetworkX, GeoPandas, Shapely
 - Streamlit, Folium, streamlit-folium
-- OR-Tools, Plotly, Matplotlib
-- scikit-learn, SQLite
+- OR-Tools, Plotly
+- SQLite
 
 ## 설치 및 실행
 
@@ -45,7 +44,6 @@ py -3.13 -m venv .venv
 2. 택시 탑승 인원, 매칭 기준, 요금 할인 설정을 고릅니다.
 3. `경로와 합승 최적화`를 누르면 지도, 합승 그룹, 경로 순서, 승객별 시간·요금, 알고리즘 비교를 확인할 수 있습니다.
 4. `이전 실행` 탭에서 이 컴퓨터에 저장된 최근 실행 요약을 확인합니다.
-5. `수요 예측 시연` 탭의 결과는 실제 호출량이 아니라 가상 자료를 이용한 설명용 결과입니다.
 
 CSV 예제는 [`data/sample_passengers.csv`](data/sample_passengers.csv)입니다. 좌표 입력에는 다음 열이 필요합니다.
 
@@ -55,7 +53,6 @@ CSV 예제는 [`data/sample_passengers.csv`](data/sample_passengers.csv)입니�
 | `pickup_lat`, `pickup_lon` | 노원구 안 출발 위도·경도 |
 | `dropoff_lat`, `dropoff_lon` | 목적지 위도·경도 |
 | `max_detour_min` | 허용 우회 시간(0~30분) |
-| `requested_at` | 호출 희망 시각(선택) |
 | `share_allowed` | 합승 허용 여부 |
 
 주소 검색은 입력한 주소를 좌표로 바꾸기 위해 OpenStreetMap Nominatim에 요청합니다. OSM 공개 서비스로 주소를 전송하지 않으려면 좌표 또는 CSV 입력을 이용하세요. 이름, 전화번호 등 개인정보나 비공개 주소를 넣지 마세요. Nominatim 요청 결과는 OSMnx 캐시에 저장되고, OSMnx가 요청 간격을 조절합니다. Nominatim 사용 정책상 공개 서비스는 초당 1회 이하로 사용해야 합니다.
@@ -90,7 +87,7 @@ CSV 예제는 [`data/sample_passengers.csv`](data/sample_passengers.csv)입니�
 .\.venv\Scripts\python.exe -m unittest discover -v
 ```
 
-테스트는 승차 선행, 탑승 인원, 우회 제약, 요금 배분, 매칭, Greedy/Genetic/OR-Tools, SQLite 저장, 합승 시간 요약, 가상 수요 예측을 검사합니다. 통합 검증에서는 내려받은 노원구 도로망으로 5명 샘플의 승객별 경로와 알고리즘 결과를 계산했습니다.
+테스트는 승차 선행, 탑승 인원, 우회 제약, 요금 배분, 매칭, Greedy/Genetic/OR-Tools, SQLite 저장, 합승 시간 요약을 검사합니다. 통합 검증에서는 내려받은 노원구 도로망으로 5명 샘플의 승객별 경로와 알고리즘 결과를 계산했습니다.
 
 ## 승객 수별 시연 성능
 
@@ -115,5 +112,4 @@ Greedy는 일부 선택 그룹에서 제약을 충족하는 전체 순서를 찾
 - 차량 운행 시간은 평균 속도 가정이라 교통 예측으로 사용할 수 없습니다.
 - 기본 요금표, 거리 기준, 할인 배분은 실험용 가정입니다.
 - 매칭 그룹 선택은 휴리스틱이고, Exact search도 각 고정 후보 그룹만 최적화합니다.
-- 수요 예측 데이터는 완전히 가상입니다. 실제 수요 예측에는 시간대·지역별 과거 호출 데이터와 별도 검증이 필요합니다.
 - 향후 교통 API, 실제 운임 정책, 개인정보 보호를 검토한 운영용 지오코더와 글로벌 매칭 해법을 연결할 수 있습니다.
